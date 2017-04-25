@@ -15,6 +15,9 @@ type Server struct {
 	context context.Context
 	env     string
 
+	// identifier is for tracing operation results back to the coordinator
+	identifier string
+
 	hosts  []*Host
 	hostMu sync.RWMutex
 }
@@ -62,9 +65,14 @@ func (s *Server) AddHost(input wrpc.AddHostInput, output *wrpc.AddHostOutput) er
 			IsAlive:  false,
 		}
 
+		err := s.setIdentifier(h)
+		if err != nil {
+			return err
+		}
+
 		s.hosts = append(s.hosts, h)
 
-		err := s.healthcheck(h)
+		err = s.healthcheck(h)
 		if err != nil {
 			//log.Printf("Initial healthcheck failed for %v: %s", h, err.Error())
 		} else if !h.IsAlive {
@@ -121,6 +129,22 @@ func (s *Server) HealthCheck(input wrpc.HealthCheckInput, output *wrpc.HealthChe
 	return s.rpcMiddleware(&input.CommonInput, func() error {
 		output.Ok = true
 		return nil
+	})
+}
+
+func (s *Server) SetIdentifier(input wrpc.SetIdentifierInput, output *wrpc.SetIdentifierOutput) error {
+	return s.rpcMiddleware(&input.CommonInput, func() error {
+		if s.identifier == "" {
+			s.identifier = input.Identifier
+			output.Ok = true
+			return nil
+		}
+		if s.identifier == input.Identifier {
+			output.Ok = true
+			return nil
+		}
+
+		return errors.New("identifier already set, mismatch")
 	})
 }
 

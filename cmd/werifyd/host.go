@@ -78,3 +78,21 @@ func (s *Server) healthcheck(h *Host) (err error) {
 	h.IsAlive = out.Ok
 	return nil
 }
+
+func (s *Server) setIdentifier(h *Host) (err error) {
+	err = s.connect(h)
+	if err != nil {
+		return err
+	}
+
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	out := wrpc.SetIdentifierOutput{}
+	in := wrpc.SetIdentifierInput{
+		CommonInput: s.newCommonInput(),
+		Identifier:  string(h.Endpoint),
+	}
+
+	return h.conn.Call(wrpc.BuildMethod("SetIdentifier"), in, &out)
+}

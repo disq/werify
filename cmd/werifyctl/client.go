@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net"
 	"net/rpc"
@@ -60,6 +62,7 @@ func (c *client) parseCommand(command string, args []string) error {
 		}
 		log.Printf("Result: %t", out.Ok)
 
+	// FIXME: repeating ugly code below
 	case "list":
 		fallthrough
 	case "listactive":
@@ -90,6 +93,33 @@ func (c *client) parseCommand(command string, args []string) error {
 			}
 		}
 		log.Print("end of list")
+
+	case "operation":
+		b, err := ioutil.ReadFile(args[0])
+		if err != nil {
+			return fmt.Errorf("Reading %s: %s", args[0], err.Error())
+		}
+
+		in := wrpc.OperationInput{
+			CommonInput: ci,
+			Forward:     true,
+		}
+
+		err = json.Unmarshal(b, &in.Ops)
+		if err != nil {
+			return fmt.Errorf("Parsing %s: %s", args[0], err.Error())
+		}
+
+		out := wrpc.OperationOutput{}
+
+		// TODO: make it async? Get an identifier, run another command to read so-far-collected results and status
+		err = c.conn.Call(rpcCmd, in, &out)
+		if err != nil {
+			return err
+		}
+
+		// TODO: print output
+
 	default:
 		return errors.New("Unhandled command")
 	}
