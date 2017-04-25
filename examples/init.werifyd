@@ -1,0 +1,5 @@
+# Example batch-commands file for werifyctl. Pipe to "./werifyctl -".
+# Lines starting with "#" and empty lines are treated as comments.
+add 127.0.0.1:30035
+add 127.0.0.1:30036
+
