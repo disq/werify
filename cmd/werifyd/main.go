@@ -9,6 +9,7 @@ import (
 	"net/rpc"
 	"os"
 	"os/signal"
+	"runtime"
 	"syscall"
 
 	"github.com/disq/werify"
@@ -18,6 +19,7 @@ import (
 func main() {
 	env := flag.String("env", werify.DefaultEnv, "Env tag")
 	port := flag.Int("port", werify.DefaultPort, "Listen on port")
+	numWorkers := flag.Int("w", runtime.NumCPU(), "Number of workers per operation")
 
 	flag.Parse()
 
@@ -31,8 +33,9 @@ func main() {
 	}()
 
 	s := &Server{
-		context: ctx,
-		env:     *env,
+		context:    ctx,
+		env:        *env,
+		numWorkers: *numWorkers,
 	}
 
 	err := rpc.RegisterName(wrpc.ProtoVersion, s)

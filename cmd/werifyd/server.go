@@ -16,7 +16,9 @@ type Server struct {
 	env     string
 
 	// identifier is for tracing operation results back to the coordinator
-	identifier string
+	identifier wrpc.ServerIdentifier
+
+	numWorkers int
 
 	hosts  []*Host
 	hostMu sync.RWMutex

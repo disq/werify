@@ -12,9 +12,8 @@ type Operation struct {
 
 // OperationResult is a result of a single operation
 type OperationResult struct {
-	OpType  OperationType
 	Success bool
-	ErrMsg  error
+	Err     error
 }
 
 // Type OperationInput is the input struct for the operation functionality
@@ -30,6 +29,18 @@ type OperationInput struct {
 
 // Type OperationOutput is the output struct for the operation functionality
 type OperationOutput struct {
-	// Results is a map of results per given unique name per endpoint
-	Results map[Endpoint]map[string]OperationResult
+	// Results is a map of results per given unique name per server identifier
+	Results map[ServerIdentifier]map[string]OperationResult
+}
+
+// WorkerOperation is Operation with unique name attached, for the worker pool
+type WorkerOperation struct {
+	Name string
+	Operation
+}
+
+// WorkerOperationResult is OperationResult with unique name attached, for the worker pool
+type WorkerOperationResult struct {
+	Name string
+	OperationResult
 }

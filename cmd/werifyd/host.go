@@ -91,7 +91,7 @@ func (s *Server) setIdentifier(h *Host) (err error) {
 	out := wrpc.SetIdentifierOutput{}
 	in := wrpc.SetIdentifierInput{
 		CommonInput: s.newCommonInput(),
-		Identifier:  string(h.Endpoint),
+		Identifier:  wrpc.ServerIdentifier(h.Endpoint),
 	}
 
 	return h.conn.Call(wrpc.BuildMethod("SetIdentifier"), in, &out)

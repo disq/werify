@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -36,7 +35,7 @@ func (c *client) connect() error {
 func (c *client) parseCommand(command string, args []string) error {
 	cmdCfg, ok := wrpc.Commands[command]
 	if !ok {
-		return fmt.Errorf("Unhandled command %s", command)
+		return fmt.Errorf("Unknown command %s", command)
 	}
 	if cmdCfg.NumArgs != len(args) {
 		return fmt.Errorf("Invalid number of arguments for %s: Expected %d but got %d", command, cmdCfg.NumArgs, len(args))
@@ -118,10 +117,14 @@ func (c *client) parseCommand(command string, args []string) error {
 			return err
 		}
 
-		// TODO: print output
+		// TODO: print output sensibly
+
+		for id, res := range out.Results {
+			log.Printf("Identifier: %s %+v", id, res)
+		}
 
 	default:
-		return errors.New("Unhandled command")
+		return fmt.Errorf("Unhandled command %s", command)
 	}
 
 	return nil
