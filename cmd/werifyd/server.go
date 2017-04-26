@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/disq/werify"
+	t "github.com/disq/werify/cmd/werifyd/types"
 	wrpc "github.com/disq/werify/rpc"
 )
 
@@ -20,11 +21,11 @@ type Server struct {
 
 	numWorkers int
 
-	hosts  []*Host
+	hosts  []*t.Host
 	hostMu sync.RWMutex
 }
 
-func (s *Server) getHostByEndpoint(endpoint wrpc.Endpoint, lock bool) (index int, host *Host) {
+func (s *Server) getHostByEndpoint(endpoint wrpc.Endpoint, lock bool) (index int, host *t.Host) {
 	if lock {
 		s.hostMu.RLock()
 		defer s.hostMu.RUnlock()
@@ -61,7 +62,7 @@ func (s *Server) AddHost(input wrpc.AddHostInput, output *wrpc.AddHostOutput) er
 		s.hostMu.Lock()
 		defer s.hostMu.Unlock()
 
-		h := &Host{
+		h := &t.Host{
 			Endpoint: wrpc.NewEndpoint(string(input.Endpoint), werify.DefaultPort),
 			Added:    time.Now(),
 			IsAlive:  false,
@@ -100,8 +101,8 @@ func (s *Server) RemoveHost(input wrpc.RemoveHostInput, output *wrpc.RemoveHostO
 
 		s.hosts = append(s.hosts[:i], s.hosts[i+1:]...)
 
-		if h.conn != nil {
-			h.conn.Close()
+		if h.Conn != nil {
+			h.Conn.Close()
 		}
 
 		output.Ok = true

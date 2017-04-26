@@ -1,52 +1,37 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net"
 	"net/rpc"
-	"sync"
 	"time"
 
 	"github.com/disq/werify"
+	t "github.com/disq/werify/cmd/werifyd/types"
 	wrpc "github.com/disq/werify/rpc"
 )
 
-type Host struct {
-	Endpoint               wrpc.Endpoint
-	Added                  time.Time
-	LastHealthCheckAttempt *time.Time
-	IsAlive                bool
-
-	mu   sync.Mutex
-	conn *rpc.Client
-}
-
-func (h *Host) String() string {
-	return fmt.Sprintf("Host[%s alive=%t]", h.Endpoint, h.IsAlive)
-}
-
-func (s *Server) connect(h *Host) error {
-	if h.conn != nil {
+func (s *Server) connect(h *t.Host) error {
+	if h.Conn != nil {
 		return nil
 	}
 
-	h.mu.Lock()
-	defer h.mu.Unlock()
+	h.Lock()
+	defer h.Unlock()
 
 	connection, err := net.DialTimeout("tcp", string(h.Endpoint), werify.DefaultTimeoutServerToServer)
 	if err != nil {
-		h.conn = nil
+		h.Conn = nil
 		return err
 	}
 
 	log.Printf("Connected to %v", h)
 
-	h.conn = rpc.NewClient(connection)
+	h.Conn = rpc.NewClient(connection)
 	return nil
 }
 
-func (s *Server) healthcheck(h *Host) (err error) {
+func (s *Server) healthcheck(h *t.Host) (err error) {
 	defer func() {
 		if err != nil {
 			log.Printf("Healthcheck not OK: %v: %s", h, err.Error())
@@ -61,15 +46,15 @@ func (s *Server) healthcheck(h *Host) (err error) {
 		return err
 	}
 
-	h.mu.Lock()
-	defer h.mu.Unlock()
+	h.Lock()
+	defer h.Unlock()
 
 	out := wrpc.HealthCheckOutput{}
 	in := wrpc.HealthCheckInput{CommonInput: s.newCommonInput()}
 	t := time.Now()
 
 	h.LastHealthCheckAttempt = &t
-	err = h.conn.Call(wrpc.BuildMethod("HealthCheck"), in, &out)
+	err = h.Conn.Call(wrpc.BuildMethod("HealthCheck"), in, &out)
 	if err != nil {
 		h.IsAlive = false
 		return err
@@ -79,14 +64,14 @@ func (s *Server) healthcheck(h *Host) (err error) {
 	return nil
 }
 
-func (s *Server) setIdentifier(h *Host) (err error) {
+func (s *Server) setIdentifier(h *t.Host) (err error) {
 	err = s.connect(h)
 	if err != nil {
 		return err
 	}
 
-	h.mu.Lock()
-	defer h.mu.Unlock()
+	h.Lock()
+	defer h.Unlock()
 
 	out := wrpc.SetIdentifierOutput{}
 	in := wrpc.SetIdentifierInput{
@@ -94,5 +79,5 @@ func (s *Server) setIdentifier(h *Host) (err error) {
 		Identifier:  wrpc.ServerIdentifier(h.Endpoint),
 	}
 
-	return h.conn.Call(wrpc.BuildMethod("SetIdentifier"), in, &out)
+	return h.Conn.Call(wrpc.BuildMethod("SetIdentifier"), in, &out)
 }

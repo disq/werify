@@ -15,6 +15,8 @@ type CommandConfig struct {
 	RpcMethod string
 }
 
+const RunOperationRpcCommand = "RunOperation"
+
 // Commands is the map of all cli commands. Key is the command name in cli.
 var Commands = map[string]CommandConfig{
 	"add":          {1, 1, "Adds a host to werifyd", "AddHost"},
@@ -22,5 +24,5 @@ var Commands = map[string]CommandConfig{
 	"list":         {3, 0, "Lists hosts in werifyd", "ListHost"},
 	"listactive":   {4, 0, "Lists active hosts in werifyd", "ListHost"},
 	"listinactive": {5, 0, "Lists inactive hosts in werifyd", "ListHost"},
-	"operation":    {6, 1, "Runs operations from file on werifyd", "RunOperation"},
+	"operation":    {6, 1, "Runs operations from file on werifyd", RunOperationRpcCommand},
 }

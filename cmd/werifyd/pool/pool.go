@@ -4,19 +4,19 @@ import (
 	"context"
 	"sync"
 
-	wrpc "github.com/disq/werify/rpc"
+	t "github.com/disq/werify/cmd/werifyd/types"
 )
 
 type Pool struct {
 	ctx        context.Context
 	cancelFunc context.CancelFunc
-	in         chan wrpc.WorkerOperation
+	in         chan t.PoolData
 	wg         *sync.WaitGroup
 }
 
-type PoolCallback func(wrpc.WorkerOperation)
+type PoolCallback func(t.PoolData)
 
-func NewPool(ctx context.Context, ch chan wrpc.WorkerOperation) *Pool {
+func NewPool(ctx context.Context, ch chan t.PoolData) *Pool {
 	ctxWithCancel, cancelFunc := context.WithCancel(ctx)
 	p := &Pool{
 		ctx:        ctxWithCancel,

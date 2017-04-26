@@ -13,6 +13,6 @@ func DoesFileExist(filename string) (bool, error) {
 			return false, err
 		}
 
-		return false, err
+		return false, nil
 	}
 }

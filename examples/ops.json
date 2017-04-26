@@ -1,0 +1,11 @@
+{
+  "check_etc_hosts_has_4488": {
+    "path": "/etc/hosts", 
+    "type": "file_contains", 
+    "check": "4.4.8.8"
+  }, 
+  "check_virus_file_exists": {
+    "path": "/var/log/virus.txt", 
+    "type": "file_exists"
+  }
+}
