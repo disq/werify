@@ -42,3 +42,136 @@ Persistent server list is not implemented directly. But after launching `werifyd
 
     cat examples/init.werifyd | ./werifyctl -
 
+## Invocation ##
+
+werifyd is the server, and werifyctl is the client. Work is always done on the server.
+
+### Server ###
+
+```
+Usage of ./werifyd:
+  -env string
+        Env tag (default "dev")
+  -port int
+        Listen on port (default 30035)
+  -w int
+        Number of workers per operation (default runtime.NumCPU)
+```
+
+- `env` is the environment tag. It should match exactly on all `werifyd`/`werifyctl` instances and it is enforced on every RPC call.
+- Number of workers (`-w`) applies to every worker-pool related event. The daemon utilizes multiple worker pools.
+
+### Client ###
+
+```
+Usage: ./werifyctl [OPTION]... [COMMAND [PARAMS...]]
+
+Available options:
+  -connect string
+        Connect to werifyd (default "localhost:30035")
+  -env string
+        Env tag (default "dev")
+  -timeout duration
+        Connect timeout (default 10s)
+
+Available commands:
+              add  Adds a host to werifyd
+              del  Removes a host from werifyd
+             list  Lists hosts in werifyd
+       listactive  Lists active hosts in werifyd
+     listinactive  Lists inactive hosts in werifyd
+        operation  Runs operations from file on werifyd
+              get  Get status of operation with handle
+          refresh  Start health check on all hosts
+
+Commands can also be specified from stdin using "-".
+```
+
+## Types of Host Checks ##
+
+### File exists ###
+
+Checks if the file or directory exists on the host system.
+
+Parameters:
+- `type`: Should be set to `file_exists`
+- `path`: Full path to the file to check
+
+### File contains ###
+
+A type of line-by-line grep.
+
+Parameters:
+- `type`: Should be set to `file_contains`
+- `path`: Full path to the file to check
+- `check`: Text/contents to check
+
+### Running Process ###
+
+Checks if the given process is running on the host system. Linux (`/proc` filesystem) only.
+
+Parameters:
+- `type`: Should be set to `process_running`
+- `path`: Full path to the process to check, ie. `/bin/bash`
+- `check`: Basename of the process to check, ie. `bash`
+
+At least one of `path` or `check` should be supplied.
+
+
+## Example Run ##
+
+Launch your daemon: (or multiple daemons on multiple hosts)
+```
+./werifyd
+```
+
+Choose one of the hosts (well...) as the coordinator node. This node will have a list of all the other nodes. For the sake of brevity, let's choose the local one.
+
+Add each ip address, like so:
+```
+./werifyctl -connect 127.0.0.1 add 10.42.0.3
+./werifyctl -connect 127.0.0.1 add 10.42.0.4
+./werifyctl -connect 127.0.0.1 add 127.0.0.1 # Let the coordinator node run the checks as the others
+```
+
+
+You can also pipe the commands through stdin:
+
+```
+cat examples/init.werifyd | ./werifyctl -
+```
+
+
+You can now check the list, using the `werifyctl list` command:
+
+```
+Active hosts (3)
+10.42.0.3:30035
+10.42.0.4:30035
+127.0.0.1:30035
+Inactive hosts (0)
+End of list
+```
+
+To run a host check operation, prepare an operations file. Then use the `werifyctl operation` command:
+```
+./werifyctl operation examples/ops.json
+```
+
+The output will be:
+```
+Operation submitted, the handle is asv1. Run ./werifyctl get asv1 to check progress.
+```
+(`asv1` is a random identifier for the submitted operation)
+
+You can then check the progress using `werifyctl get`:
+```
+./werifyctl get asv1
+Host:10.42.0.3:30035 Operation:check_virus_file_exists Success:false
+Host:10.42.0.3:30035 Operation:check_etc_hosts_has_4488 Success:false
+Host:10.42.0.4:30035 Operation:check_virus_file_exists Success:false
+Host:10.42.0.4:30035 Operation:check_etc_hosts_has_4488 Success:false
+Host:127.0.0.1:30035 Operation:check_virus_file_exists Success:false
+Host:127.0.0.1:30035 Operation:check_etc_hosts_has_4488 Success:false
+Operation ended, took 3.445244ms
+```
