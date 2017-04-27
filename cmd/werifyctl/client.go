@@ -68,6 +68,18 @@ func (c *client) parseCommand(command string, args []string) error {
 			fmt.Printf("Could not remove host %s\n", args[0])
 		}
 
+	case "refresh":
+		out := wrpc.RefreshOutput{}
+		err := c.conn.Call(rpcCmd, wrpc.RefreshInput{CommonInput: ci}, &out)
+		if err != nil {
+			return err
+		}
+		if out.Ok {
+			fmt.Println("Initiated refresh")
+		} else {
+			fmt.Println("Could not initiate refresh")
+		}
+
 	// FIXME: repeating ugly code below
 	case "list":
 		fallthrough

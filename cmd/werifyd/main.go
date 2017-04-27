@@ -37,10 +37,11 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 
 	s := &Server{
-		context:    ctx,
-		env:        *env,
-		numWorkers: *numWorkers,
-		opBuffer:   make(map[string]wrpc.OperationOutput),
+		context:          ctx,
+		env:              *env,
+		numWorkers:       *numWorkers,
+		opBuffer:         make(map[string]wrpc.OperationOutput),
+		forceHealthcheck: make(chan struct{}, 10),
 	}
 
 	err := rpc.RegisterName(wrpc.ProtoVersion, s)
@@ -57,6 +58,8 @@ func main() {
 		<-ctx.Done()
 		listener.Close()
 	}()
+
+	go s.healthchecker()
 
 	rpc.Accept(listener)
 }

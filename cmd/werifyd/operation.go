@@ -165,8 +165,7 @@ func (s *Server) runAsyncOperation(handle string, input wrpc.OperationInput) {
 
 	for _, h := range s.hosts {
 		// Run each RPC call for each Host in a worker concurrently
-		o := t.WorkerHost(*h)
-		ch <- &o
+		ch <- h
 	}
 
 	close(ch)

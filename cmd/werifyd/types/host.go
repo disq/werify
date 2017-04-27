@@ -10,7 +10,7 @@ import (
 	wrpc "github.com/disq/werify/rpc"
 )
 
-// Type Host is the main struct for each host
+// Type Host is the main struct for each host, satisfies the PoolData interface.
 type Host struct {
 	Endpoint               wrpc.Endpoint
 	Added                  time.Time
@@ -23,4 +23,14 @@ type Host struct {
 
 func (h *Host) String() string {
 	return fmt.Sprintf("Host[%s alive=%t]", h.Endpoint, h.IsAlive)
+}
+
+func (w *Host) GetName() string {
+	return ""
+}
+func (w *Host) GetOperation() *wrpc.Operation {
+	return nil
+}
+func (w *Host) GetHost() *Host {
+	return w
 }

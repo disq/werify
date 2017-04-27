@@ -26,10 +26,11 @@ type Server struct {
 	hostMu sync.RWMutex
 
 	// opBuffer is a map of operation handles vs. data
-	opBuffer map[string]wrpc.OperationOutput
-	opMu     sync.RWMutex
-
+	opBuffer     map[string]wrpc.OperationOutput
+	opMu         sync.RWMutex
 	nextOpHandle uint64
+
+	forceHealthcheck chan struct{}
 }
 
 func (s *Server) getHostByEndpoint(endpoint wrpc.Endpoint, lock bool) (index int, host *t.Host) {
@@ -157,6 +158,17 @@ func (s *Server) SetIdentifier(input wrpc.SetIdentifierInput, output *wrpc.SetId
 		}
 
 		return errors.New("identifier already set, mismatch")
+	})
+}
+
+func (s *Server) Refresh(input wrpc.RefreshInput, output *wrpc.RefreshOutput) error {
+	return s.rpcMiddleware(&input.CommonInput, func() error {
+		// Don't block if we already have another one queued up
+		go func() {
+			s.forceHealthcheck <- struct{}{}
+		}()
+		output.Ok = true
+		return nil
 	})
 }
 

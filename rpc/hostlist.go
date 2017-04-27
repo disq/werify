@@ -35,3 +35,13 @@ type ListHostsOutput struct {
 	ActiveHosts   []Endpoint
 	InactiveHosts []Endpoint
 }
+
+// Type RefreshInput is the input struct for refresh hosts/start healthcheck functionality
+type RefreshInput struct {
+	CommonInput
+}
+
+// Type RefreshOutput is the output struct for refresh hosts/start healthcheck functionality
+type RefreshOutput struct {
+	Ok bool
+}
