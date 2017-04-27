@@ -5,12 +5,14 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"math/rand"
 	"net"
 	"net/rpc"
 	"os"
 	"os/signal"
 	"runtime"
 	"syscall"
+	"time"
 
 	"github.com/disq/werify"
 	wrpc "github.com/disq/werify/rpc"
@@ -32,10 +34,13 @@ func main() {
 		cancelFunc()
 	}()
 
+	rand.Seed(time.Now().UnixNano())
+
 	s := &Server{
 		context:    ctx,
 		env:        *env,
 		numWorkers: *numWorkers,
+		opBuffer:   make(map[string]wrpc.OperationOutput),
 	}
 
 	err := rpc.RegisterName(wrpc.ProtoVersion, s)

@@ -117,11 +117,19 @@ func (c *client) parseCommand(command string, args []string) error {
 			return err
 		}
 
-		// TODO: print output sensibly
-
-		for id, res := range out.Results {
-			log.Printf("Identifier: %s %+v", id, res)
+		if out.Handle != "" {
+			log.Printf("Operation submitted, the handle is %s. Run ./werifyctl get %s to check progress.", out.Handle, out.Handle)
+		} else {
+			c.displayOperation(out)
 		}
+
+	case "get":
+		out := wrpc.OperationStatusCheckOutput{}
+		err := c.conn.Call(rpcCmd, wrpc.OperationStatusCheckInput{CommonInput: ci, Handle: args[0]}, &out)
+		if err != nil {
+			return err
+		}
+		c.displayOperation(wrpc.OperationOutput(out))
 
 	default:
 		return fmt.Errorf("Unhandled command %s", command)
@@ -134,5 +142,23 @@ func (c *client) parseCommand(command string, args []string) error {
 func (c *client) newCommonInput() wrpc.CommonInput {
 	return wrpc.CommonInput{
 		EnvTag: c.env,
+	}
+}
+
+func (c *client) displayOperation(o wrpc.OperationOutput) {
+	for id, res := range o.Results {
+		for name, result := range res {
+			if result.Err != "" {
+				log.Printf("Host:%s Operation:%s Error:%s", id, name, result.Err)
+			} else {
+				log.Printf("Host:%s Operation:%s Success:%t", id, name, result.Success)
+			}
+		}
+	}
+
+	if o.EndedAt != nil {
+		log.Printf("Operation ended, took %v", o.EndedAt.Sub(o.StartedAt))
+	} else {
+		log.Printf("Operation still running...")
 	}
 }

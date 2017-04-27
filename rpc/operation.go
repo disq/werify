@@ -1,5 +1,7 @@
 package rpc
 
+import "time"
+
 type OperationType string
 type OperationArgument string
 
@@ -13,14 +15,16 @@ type Operation struct {
 // OperationResult is a result of a single operation
 type OperationResult struct {
 	Success bool
-	Err     string
+	// Err is the error value as a primitive
+	Err string
 }
 
 // Type OperationInput is the input struct for the operation functionality
 type OperationInput struct {
 	CommonInput
 
-	// Forward determines if we are running these operations on the currect context or forwarding them down to other hosts
+	// Forward determines if we are running these operations on the currect context or forwarding them down to other hosts.
+	// This also makes the current call async, in OperationOutput only Id will be returned.
 	Forward bool
 
 	// Ops is a map of operations, map key is the given unique name
@@ -29,6 +33,25 @@ type OperationInput struct {
 
 // Type OperationOutput is the output struct for the operation functionality
 type OperationOutput struct {
+	// Handle is a unique id to check the results using OperationStatusCheckInput
+	Handle string
+
 	// Results is a map of results per given unique name per server identifier
 	Results map[ServerIdentifier]map[string]OperationResult
+
+	// StartedAt is the start time
+	StartedAt time.Time
+
+	// EndedAt shows if the operation is still running or ended
+	EndedAt *time.Time
 }
+
+type OperationStatusCheckInput struct {
+	CommonInput
+
+	// Handle is the unique id of the operation to check results for
+	Handle string
+}
+
+// Type OperationStatusCheckOutput is the output struct for the operation functionality
+type OperationStatusCheckOutput OperationOutput

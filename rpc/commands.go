@@ -25,4 +25,5 @@ var Commands = map[string]CommandConfig{
 	"listactive":   {4, 0, "Lists active hosts in werifyd", "ListHost"},
 	"listinactive": {5, 0, "Lists inactive hosts in werifyd", "ListHost"},
 	"operation":    {6, 1, "Runs operations from file on werifyd", RunOperationRpcCommand},
+	"get":          {7, 1, "Get status of operation with handle", "OperationStatusCheck"},
 }

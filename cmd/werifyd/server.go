@@ -21,8 +21,15 @@ type Server struct {
 
 	numWorkers int
 
+	// hosts is the list of hosts
 	hosts  []*t.Host
 	hostMu sync.RWMutex
+
+	// opBuffer is a map of operation handles vs. data
+	opBuffer map[string]wrpc.OperationOutput
+	opMu     sync.RWMutex
+
+	nextOpHandle uint64
 }
 
 func (s *Server) getHostByEndpoint(endpoint wrpc.Endpoint, lock bool) (index int, host *t.Host) {
