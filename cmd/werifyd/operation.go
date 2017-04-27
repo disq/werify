@@ -1,14 +1,18 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/disq/werify/cmd/werifyd/checkers"
 	"github.com/disq/werify/cmd/werifyd/pool"
 	t "github.com/disq/werify/cmd/werifyd/types"
 	wrpc "github.com/disq/werify/rpc"
 )
+
+const rpcOperationTimeout = 30 * time.Second
 
 func (s *Server) RunOperation(input wrpc.OperationInput, output *wrpc.OperationOutput) error {
 	return s.rpcMiddleware(&input.CommonInput, func() error {
@@ -63,8 +67,15 @@ func (s *Server) RunOperation(input wrpc.OperationInput, output *wrpc.OperationO
 
 			out := wrpc.OperationOutput{}
 
-			// TODO what if it takes too long? Add a timeout
-			err := h.Conn.Call(rpcCmd, input, &out)
+			var err error
+
+			call := h.Conn.Go(rpcCmd, input, &out, nil)
+			select {
+			case ret := <-call.Done:
+				err = ret.Error
+			case <-time.After(rpcOperationTimeout):
+				err = errors.New("RPC call timed out")
+			}
 
 			mu.Lock()
 			defer mu.Unlock()

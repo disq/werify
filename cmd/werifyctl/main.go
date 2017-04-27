@@ -12,12 +12,15 @@ import (
 	"sort"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/disq/werify"
 	wrpc "github.com/disq/werify/rpc"
 )
 
 var errorNop = errors.New("No operation was performed")
+
+const defaultTimeoutClientToServer = 10 * time.Second
 
 func printUsageLine() {
 	fmt.Fprintf(os.Stderr, "Usage: %s [OPTION]... [COMMAND [PARAMS...]]\n\nAvailable options:\n", os.Args[0])
@@ -48,7 +51,7 @@ func printUsageLine() {
 func main() {
 	env := flag.String("env", werify.DefaultEnv, "Env tag")
 	connect := flag.String("connect", fmt.Sprintf("localhost:%d", werify.DefaultPort), "Connect to werifyd")
-	timeout := flag.Duration("timeout", werify.DefaultTimeoutClientToServer, "Connect timeout")
+	timeout := flag.Duration("timeout", defaultTimeoutClientToServer, "Connect timeout")
 
 	flag.Usage = printUsageLine
 	flag.Parse()

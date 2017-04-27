@@ -6,10 +6,11 @@ import (
 	"net/rpc"
 	"time"
 
-	"github.com/disq/werify"
 	t "github.com/disq/werify/cmd/werifyd/types"
 	wrpc "github.com/disq/werify/rpc"
 )
+
+const defaultTimeoutServerToServer = 10 * time.Second
 
 func (s *Server) connect(h *t.Host) error {
 	if h.Conn != nil {
@@ -19,7 +20,7 @@ func (s *Server) connect(h *t.Host) error {
 	h.Lock()
 	defer h.Unlock()
 
-	connection, err := net.DialTimeout("tcp", string(h.Endpoint), werify.DefaultTimeoutServerToServer)
+	connection, err := net.DialTimeout("tcp", string(h.Endpoint), defaultTimeoutServerToServer)
 	if err != nil {
 		h.Conn = nil
 		return err
