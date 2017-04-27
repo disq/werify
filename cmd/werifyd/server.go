@@ -61,7 +61,9 @@ func (s *Server) rpcMiddleware(input *wrpc.CommonInput, callback func() error) e
 
 func (s *Server) AddHost(input wrpc.AddHostInput, output *wrpc.AddHostOutput) error {
 	return s.rpcMiddleware(&input.CommonInput, func() error {
-		i, _ := s.getHostByEndpoint(input.Endpoint, true)
+		ep := wrpc.NewEndpoint(string(input.Endpoint), werify.DefaultPort)
+
+		i, _ := s.getHostByEndpoint(ep, true)
 		if i > -1 {
 			return errors.New("endpoint already exists in host list")
 		}
@@ -70,7 +72,7 @@ func (s *Server) AddHost(input wrpc.AddHostInput, output *wrpc.AddHostOutput) er
 		defer s.hostMu.Unlock()
 
 		h := &t.Host{
-			Endpoint: wrpc.NewEndpoint(string(input.Endpoint), werify.DefaultPort),
+			Endpoint: ep,
 			Added:    time.Now(),
 			IsAlive:  false,
 		}
