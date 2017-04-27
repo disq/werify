@@ -6,7 +6,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"sort"
@@ -21,6 +20,16 @@ import (
 var errorNop = errors.New("No operation was performed")
 
 const defaultTimeoutClientToServer = 10 * time.Second
+
+// fail prints the error and then aborts the program
+func fail(err error, command *string) {
+	if command != nil {
+		fmt.Printf("Error running %s: %s\n", *command, err.Error())
+	} else {
+		fmt.Printf("Error: %s\n", err.Error())
+	}
+	os.Exit(1)
+}
 
 func printUsageLine() {
 	fmt.Fprintf(os.Stderr, "Usage: %s [OPTION]... [COMMAND [PARAMS...]]\n\nAvailable options:\n", os.Args[0])
@@ -61,7 +70,7 @@ func main() {
 		ch := make(chan os.Signal, 1)
 		signal.Notify(ch, os.Interrupt, syscall.SIGTERM, syscall.SIGPIPE)
 		<-ch
-		log.Print("Got signal, cleaning up...")
+		//fmt.Println("Got signal, cleaning up...")
 		cancelFunc()
 	}()
 
@@ -78,7 +87,7 @@ func main() {
 
 	err := c.connect()
 	if err != nil {
-		log.Fatalf("Connection: %s", err.Error())
+		fail(err, nil)
 	}
 
 	if flag.Arg(0) == "-" {
@@ -86,7 +95,7 @@ func main() {
 	} else {
 		err := parseArgs(c, flag.Args())
 		if err != nil {
-			log.Fatalf("Running: %s", err.Error())
+			fail(err, nil)
 		}
 	}
 }
@@ -99,16 +108,16 @@ func parseArgsFromFile(c *client, f *os.File) {
 		args := strings.Split(line, " ")
 		err := parseArgs(c, args)
 		if err != nil && err != errorNop {
-			log.Fatalf("Running input %s: %s", line, err.Error())
+			fail(err, &line)
 		}
 		if err != errorNop {
 			processed++
 		}
 	}
 	if err := s.Err(); err != nil {
-		log.Fatalf("Reading input: %s", err.Error())
+		fail(err, nil)
 	}
-	log.Printf("Commands processed: %d", processed)
+	fmt.Printf("Commands processed: %d\n", processed)
 }
 
 func parseArgs(c *client, args []string) error {

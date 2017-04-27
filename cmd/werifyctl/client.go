@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net"
 	"net/rpc"
 	"time"
@@ -26,7 +25,7 @@ func (c *client) connect() error {
 		return err
 	}
 
-	log.Printf("Connected to %s", c.server)
+	//fmt.Printf("Connected to %s\n", c.server)
 
 	c.conn = rpc.NewClient(connection)
 	return nil
@@ -51,7 +50,11 @@ func (c *client) parseCommand(command string, args []string) error {
 		if err != nil {
 			return err
 		}
-		log.Printf("Result: %t", out.Ok)
+		if out.Ok {
+			fmt.Printf("Added host %s\n", args[0])
+		} else {
+			fmt.Printf("Could not add host %s\n", args[0])
+		}
 
 	case "del":
 		out := wrpc.RemoveHostOutput{}
@@ -59,7 +62,11 @@ func (c *client) parseCommand(command string, args []string) error {
 		if err != nil {
 			return err
 		}
-		log.Printf("Result: %t", out.Ok)
+		if out.Ok {
+			fmt.Printf("Removed host %s\n", args[0])
+		} else {
+			fmt.Printf("Could not remove host %s\n", args[0])
+		}
 
 	// FIXME: repeating ugly code below
 	case "list":
@@ -80,18 +87,18 @@ func (c *client) parseCommand(command string, args []string) error {
 		}
 
 		if command == "list" || command == "listactive" {
-			log.Printf("Active hosts (%d)", len(out.ActiveHosts))
+			fmt.Printf("Active hosts (%d)\n", len(out.ActiveHosts))
 			for _, e := range out.ActiveHosts {
-				log.Print(e)
+				fmt.Println(e)
 			}
 		}
 		if command == "list" || command == "listinactive" {
-			log.Printf("Inactive hosts (%d)", len(out.InactiveHosts))
+			fmt.Printf("Inactive hosts (%d)\n", len(out.InactiveHosts))
 			for _, e := range out.InactiveHosts {
-				log.Print(e)
+				fmt.Println(e)
 			}
 		}
-		log.Print("end of list")
+		fmt.Println("End of list")
 
 	case "operation":
 		b, err := ioutil.ReadFile(args[0])
@@ -118,7 +125,7 @@ func (c *client) parseCommand(command string, args []string) error {
 		}
 
 		if out.Handle != "" {
-			log.Printf("Operation submitted, the handle is %s. Run ./werifyctl get %s to check progress.", out.Handle, out.Handle)
+			fmt.Printf("Operation submitted, the handle is %s. Run ./werifyctl get %s to check progress.\n", out.Handle, out.Handle)
 		} else {
 			c.displayOperation(out)
 		}
@@ -149,16 +156,16 @@ func (c *client) displayOperation(o wrpc.OperationOutput) {
 	for id, res := range o.Results {
 		for name, result := range res {
 			if result.Err != "" {
-				log.Printf("Host:%s Operation:%s Error:%s", id, name, result.Err)
+				fmt.Printf("Host:%s Operation:%s Error:%s\n", id, name, result.Err)
 			} else {
-				log.Printf("Host:%s Operation:%s Success:%t", id, name, result.Success)
+				fmt.Printf("Host:%s Operation:%s Success:%t\n", id, name, result.Success)
 			}
 		}
 	}
 
 	if o.EndedAt != nil {
-		log.Printf("Operation ended, took %v", o.EndedAt.Sub(o.StartedAt))
+		fmt.Printf("Operation ended, took %v\n", o.EndedAt.Sub(o.StartedAt))
 	} else {
-		log.Printf("Operation still running...")
+		fmt.Printf("Operation still running...\n")
 	}
 }
