@@ -12,6 +12,7 @@ import (
 	wrpc "github.com/disq/werify/rpc"
 )
 
+// Server is our main struct
 type Server struct {
 	context context.Context
 	env     string
@@ -60,6 +61,7 @@ func (s *Server) rpcMiddleware(input *wrpc.CommonInput, callback func() error) e
 	return callback()
 }
 
+// AddHost is the rpc handler to add a host to our host list
 func (s *Server) AddHost(input wrpc.AddHostInput, output *wrpc.AddHostOutput) error {
 	return s.rpcMiddleware(&input.CommonInput, func() error {
 		ep := wrpc.NewEndpoint(string(input.Endpoint), werify.DefaultPort)
@@ -97,6 +99,7 @@ func (s *Server) AddHost(input wrpc.AddHostInput, output *wrpc.AddHostOutput) er
 	})
 }
 
+// RemoveHost is the rpc handler to remove a host from our host list
 func (s *Server) RemoveHost(input wrpc.RemoveHostInput, output *wrpc.RemoveHostOutput) error {
 	return s.rpcMiddleware(&input.CommonInput, func() error {
 		s.hostMu.Lock()
@@ -120,6 +123,7 @@ func (s *Server) RemoveHost(input wrpc.RemoveHostInput, output *wrpc.RemoveHostO
 	})
 }
 
+// ListHost is the rpc handler to list our hosts
 func (s *Server) ListHost(input wrpc.ListHostsInput, output *wrpc.ListHostsOutput) error {
 	return s.rpcMiddleware(&input.CommonInput, func() error {
 		s.hostMu.RLock()
@@ -138,6 +142,7 @@ func (s *Server) ListHost(input wrpc.ListHostsInput, output *wrpc.ListHostsOutpu
 	})
 }
 
+// HealthCheck is a no-op rpc handler for health-check purposes
 func (s *Server) HealthCheck(input wrpc.HealthCheckInput, output *wrpc.HealthCheckOutput) error {
 	return s.rpcMiddleware(&input.CommonInput, func() error {
 		output.Ok = true
@@ -145,6 +150,7 @@ func (s *Server) HealthCheck(input wrpc.HealthCheckInput, output *wrpc.HealthChe
 	})
 }
 
+// SetIdentifier is the rpc handler to set our endpoint identifier
 func (s *Server) SetIdentifier(input wrpc.SetIdentifierInput, output *wrpc.SetIdentifierOutput) error {
 	return s.rpcMiddleware(&input.CommonInput, func() error {
 		if s.identifier == "" {
@@ -161,6 +167,7 @@ func (s *Server) SetIdentifier(input wrpc.SetIdentifierInput, output *wrpc.SetId
 	})
 }
 
+// Refresh is the rpc handler to force a health-check
 func (s *Server) Refresh(input wrpc.RefreshInput, output *wrpc.RefreshOutput) error {
 	return s.rpcMiddleware(&input.CommonInput, func() error {
 		// Don't block if we already have another one queued up

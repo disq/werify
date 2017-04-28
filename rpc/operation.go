@@ -2,7 +2,10 @@ package rpc
 
 import "time"
 
+// OperationType is the type of the operation
 type OperationType string
+
+// OperationArgument is one of the arguments of the operation
 type OperationArgument string
 
 // Operation is a single operation
