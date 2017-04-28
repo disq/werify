@@ -51,7 +51,7 @@ func main() {
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
-		log.Fatalf("Could not bind: %d", err.Error())
+		log.Fatalf("Could not bind: %s", err.Error())
 	}
 
 	go func() {
