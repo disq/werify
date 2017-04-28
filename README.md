@@ -163,7 +163,7 @@ To run a host check operation, prepare an operations file. Then use the `werifyc
 
 The output will be:
 ```
-Operation submitted, the handle is asv1. Run ./werifyctl get asv1 to check progress.
+Operation submitted. To check progress, run: ./werifyctl get asv1
 ```
 (`asv1` is a random identifier for the submitted operation)
 

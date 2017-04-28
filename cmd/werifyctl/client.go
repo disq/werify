@@ -137,7 +137,7 @@ func (c *client) parseCommand(command string, args []string) error {
 		}
 
 		if out.Handle != "" {
-			fmt.Printf("Operation submitted, the handle is %s. Run ./werifyctl get %s to check progress.\n", out.Handle, out.Handle)
+			fmt.Printf("Operation submitted. To check progress, run: ./werifyctl get %s\n", out.Handle)
 		} else {
 			c.displayOperation(out)
 		}
