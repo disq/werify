@@ -15,6 +15,7 @@ type CommandConfig struct {
 	RpcMethod string
 }
 
+// RunOperationRpcCommand is the name of the Run Operation RPC command
 const RunOperationRpcCommand = "RunOperation"
 
 // Commands is the map of all cli commands. Key is the command name in cli.

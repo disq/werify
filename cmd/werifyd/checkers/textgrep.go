@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// DoesFileHasWord reads a file line by line and checks if the line contains the word
 func DoesFileHasWord(filename, word string) (bool, error) {
 	f, err := os.Open(filename)
 	if err != nil {

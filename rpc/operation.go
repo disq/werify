@@ -19,7 +19,7 @@ type OperationResult struct {
 	Err string
 }
 
-// Type OperationInput is the input struct for the operation functionality
+// OperationInput is the input struct for the operation functionality
 type OperationInput struct {
 	CommonInput
 
@@ -31,7 +31,7 @@ type OperationInput struct {
 	Ops map[string]Operation
 }
 
-// Type OperationOutput is the output struct for the operation functionality
+// OperationOutput is the output struct for the operation functionality
 type OperationOutput struct {
 	// Handle is a unique id to check the results using OperationStatusCheckInput
 	Handle string
@@ -46,6 +46,7 @@ type OperationOutput struct {
 	EndedAt *time.Time
 }
 
+// OperationStatusCheckInput is the input struct to check status of an operation
 type OperationStatusCheckInput struct {
 	CommonInput
 
@@ -53,5 +54,5 @@ type OperationStatusCheckInput struct {
 	Handle string
 }
 
-// Type OperationStatusCheckOutput is the output struct for the operation functionality
+// OperationStatusCheckOutput is the output struct for the operation functionality
 type OperationStatusCheckOutput OperationOutput

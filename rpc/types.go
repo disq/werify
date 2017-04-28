@@ -8,6 +8,7 @@ import (
 // Endpoint is the host:port of a (hopefully) running werifyd
 type Endpoint string
 
+// NewEndpoint creates an Endpoint
 func NewEndpoint(hostPort string, defaultPort int) Endpoint {
 	if strings.Index(hostPort, ":") == -1 {
 		return Endpoint(fmt.Sprintf("%s:%d", hostPort, defaultPort))

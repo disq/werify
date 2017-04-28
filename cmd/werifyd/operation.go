@@ -15,6 +15,7 @@ import (
 
 const rpcOperationTimeout = 30 * time.Second
 
+// OperationStatusCheck is the rpc handler to check the status of an ongoing or ended operation
 func (s *Server) OperationStatusCheck(input wrpc.OperationStatusCheckInput, output *wrpc.OperationStatusCheckOutput) error {
 	return s.rpcMiddleware(&input.CommonInput, func() error {
 		o := s.getOpBuffer(input.Handle)
@@ -52,6 +53,7 @@ func (s *Server) getOpBuffer(handle string) *wrpc.OperationOutput {
 	return &o
 }
 
+// RunOperation is the rpc handler to run a host check operation
 func (s *Server) RunOperation(input wrpc.OperationInput, output *wrpc.OperationOutput) error {
 	return s.rpcMiddleware(&input.CommonInput, func() error {
 

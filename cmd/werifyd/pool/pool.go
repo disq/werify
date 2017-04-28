@@ -7,6 +7,7 @@ import (
 	t "github.com/disq/werify/cmd/werifyd/types"
 )
 
+// Pool is a generic worker pool using t.PoolData as the datatype
 type Pool struct {
 	ctx        context.Context
 	cancelFunc context.CancelFunc
@@ -14,8 +15,10 @@ type Pool struct {
 	wg         *sync.WaitGroup
 }
 
+// PoolCallback is the data process callback
 type PoolCallback func(t.PoolData)
 
+// NewPool creates a new Pool
 func NewPool(ctx context.Context, ch chan t.PoolData) *Pool {
 	ctxWithCancel, cancelFunc := context.WithCancel(ctx)
 	p := &Pool{
@@ -27,6 +30,7 @@ func NewPool(ctx context.Context, ch chan t.PoolData) *Pool {
 	return p
 }
 
+// Start starts numWorkers number of workers on the pool, each running callback
 func (p *Pool) Start(numWorkers int, callback PoolCallback) {
 	p.wg.Add(numWorkers)
 	for i := 0; i < numWorkers; i++ {
@@ -34,6 +38,7 @@ func (p *Pool) Start(numWorkers int, callback PoolCallback) {
 	}
 }
 
+// Wait waits for the pool jobs to complete
 func (p *Pool) Wait() {
 	p.wg.Wait()
 }
@@ -54,6 +59,7 @@ func (p *Pool) worker(callback PoolCallback) {
 	}
 }
 
+// Cancel cancels the jobs in the pool
 func (p *Pool) Cancel() {
 	p.cancelFunc()
 }

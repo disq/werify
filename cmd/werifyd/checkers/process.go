@@ -11,6 +11,7 @@ import (
 
 const procDir = "/proc"
 
+// IsProcessRunning checks if the process is running
 func IsProcessRunning(checkBasename, checkWithPath string) (bool, error) {
 	// Assuming Linux
 	dir, err := os.Open(procDir)

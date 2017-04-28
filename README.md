@@ -1,3 +1,8 @@
+![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Tag](https://img.shields.io/github/tag/disq/werify.svg)
+[![GoDoc](https://godoc.org/github.com/disq/werify?status.svg)](https://godoc.org/github.com/disq/werify)
+[![Go Report](https://goreportcard.com/badge/github.com/disq/werify)](https://goreportcard.com/report/github.com/disq/werify)
+
 # Werify: PoC with a cheesy name #
 
 Werify is a Go stdlib-only PoC attempt at distributed host checks.
