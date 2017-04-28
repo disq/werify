@@ -1,3 +1,4 @@
+// Package pool contains a generic worker pool
 package pool
 
 import (

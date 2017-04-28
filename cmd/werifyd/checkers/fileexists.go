@@ -1,3 +1,4 @@
+// Package checkers contains the actual host checkers
 package checkers
 
 import (
