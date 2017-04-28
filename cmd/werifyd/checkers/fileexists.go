@@ -9,11 +9,11 @@ func DoesFileExist(filename string) (bool, error) {
 	_, err := os.Stat(filename)
 	if err == nil {
 		return true, nil
-	} else {
-		if !os.IsNotExist(err) {
-			return false, err
-		}
-
-		return false, nil
 	}
+
+	if !os.IsNotExist(err) {
+		return false, err
+	}
+
+	return false, nil
 }
