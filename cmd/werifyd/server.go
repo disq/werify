@@ -130,12 +130,14 @@ func (s *Server) ListHost(input wrpc.ListHostsInput, output *wrpc.ListHostsOutpu
 		defer s.hostMu.RUnlock()
 
 		for _, h := range s.hosts {
+			h.Lock()
 			if input.ListActive && h.IsAlive {
 				output.ActiveHosts = append(output.ActiveHosts, h.Endpoint)
 			}
 			if input.ListInactive && !h.IsAlive {
 				output.InactiveHosts = append(output.InactiveHosts, h.Endpoint)
 			}
+			h.Unlock()
 		}
 
 		return nil
