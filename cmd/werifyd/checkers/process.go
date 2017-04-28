@@ -1,7 +1,9 @@
 package checkers
 
 import (
+	"bytes"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -33,20 +35,29 @@ func IsProcessRunning(checkBasename, checkWithPath string) (bool, error) {
 				continue
 			}
 
-			exe := filepath.Join(procDir, fi.Name(), "exe")
-			realExe, err := filepath.EvalSymlinks(exe)
+			// This file is supposed to be readable by all users
+			cmdlineFile := filepath.Join(procDir, fi.Name(), "cmdline")
+
+			cmdline, err := ioutil.ReadFile(cmdlineFile)
 			if err != nil {
 				// Process dead?
 				continue
 			}
+			idx := bytes.Index(cmdline, []byte{0})
+			if idx < 1 {
+				// No NUL-byte in cmdline... This should not happen
+				continue
+			}
+
+			command := string(cmdline[:idx])
 
 			if checkWithPath != "" {
-				if checkWithPath == realExe {
+				if checkWithPath == command {
 					return true, nil
 				}
 			}
 			if checkBasename != "" {
-				processName := filepath.Base(realExe)
+				processName := filepath.Base(command)
 				if processName == checkBasename {
 					return true, nil
 				}
