@@ -90,6 +90,30 @@ Commands can also be specified from stdin using "-".
 - `connect` parameter can be set with the environment variable `WERIFY_CONNECT`.
 - `env` parameter can be set with the environment variable `WERIFY_ENV`.
 
+## Operations File Format ##
+
+Host checks/operation file is a JSON file. The first-level object keys are user specified. There isn't any imposed limit on the number of checks.
+
+```
+{
+    "check_name": {
+        "type": "type of check",
+        "path": "value for the path parameter for check_name",
+        "check": "value for the check parameter for check_name"
+    },
+    "name_for_another_check": {
+        "type": "type of check",
+        "path": "value for the path parameter for name_for_another_check",
+        "check": "value for the check parameter for name_for_another_check"
+    },
+    ...
+}
+```
+
+In the response, each check will be referred to by its key name and the Host's first-referred identifier. (See [Caveats](https://github.com/disq/werify#caveats))
+
+A sample `ops.json` file is provided in the [examples](https://github.com/disq/werify/tree/master/examples) directory.
+
 ## Types of Host Checks ##
 
 ### File exists ###
@@ -165,7 +189,7 @@ The output will be:
 ```
 Operation submitted. To check progress, run: ./werifyctl get asv1
 ```
-(`asv1` is a random identifier for the submitted operation)
+(`asv1` is a unique handle for the submitted operation)
 
 You can then check the progress using `werifyctl get`:
 ```
