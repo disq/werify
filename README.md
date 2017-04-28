@@ -87,6 +87,9 @@ Available commands:
 Commands can also be specified from stdin using "-".
 ```
 
+- `connect` parameter can be set with the environment variable `WERIFY_CONNECT`.
+- `env` parameter can be set with the environment variable `WERIFY_ENV`.
+
 ## Types of Host Checks ##
 
 ### File exists ###

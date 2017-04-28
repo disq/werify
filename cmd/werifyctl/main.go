@@ -57,10 +57,18 @@ func printUsageLine() {
 	fmt.Fprintf(os.Stderr, "\nCommands can also be specified from stdin using \"-\".\n")
 }
 
+func envParam(name, def string) string {
+	v := os.Getenv(name)
+	if v == "" {
+		return def
+	}
+	return v
+}
+
 func main() {
 	var connect string
-	env := flag.String("env", werify.DefaultEnv, "Env tag")
-	flag.StringVar(&connect, "connect", fmt.Sprintf("localhost:%d", werify.DefaultPort), "Connect to werifyd")
+	env := flag.String("env", envParam("WERIFY_ENV", werify.DefaultEnv), "Env tag")
+	flag.StringVar(&connect, "connect", envParam("WERIFY_CONNECT", fmt.Sprintf("localhost:%d", werify.DefaultPort)), "Connect to werifyd")
 	timeout := flag.Duration("timeout", defaultTimeoutClientToServer, "Connect timeout")
 
 	flag.Usage = printUsageLine
