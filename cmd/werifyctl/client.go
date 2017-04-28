@@ -130,7 +130,6 @@ func (c *client) parseCommand(command string, args []string) error {
 
 		out := wrpc.OperationOutput{}
 
-		// TODO: make it async? Get an identifier, run another command to read so-far-collected results and status
 		err = c.conn.Call(rpcCmd, in, &out)
 		if err != nil {
 			return err
