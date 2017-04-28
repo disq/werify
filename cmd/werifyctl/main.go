@@ -58,8 +58,9 @@ func printUsageLine() {
 }
 
 func main() {
+	var connect string
 	env := flag.String("env", werify.DefaultEnv, "Env tag")
-	connect := flag.String("connect", fmt.Sprintf("localhost:%d", werify.DefaultPort), "Connect to werifyd")
+	flag.StringVar(&connect, "connect", fmt.Sprintf("localhost:%d", werify.DefaultPort), "Connect to werifyd")
 	timeout := flag.Duration("timeout", defaultTimeoutClientToServer, "Connect timeout")
 
 	flag.Usage = printUsageLine
@@ -79,9 +80,13 @@ func main() {
 		os.Exit(1)
 	}
 
+	if strings.Index(connect, ":") == -1 {
+		connect = fmt.Sprintf("%s:%d", connect, werify.DefaultPort)
+	}
+
 	c := &client{
 		env:     *env,
-		server:  *connect,
+		server:  connect,
 		timeout: *timeout,
 	}
 
