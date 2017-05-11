@@ -123,6 +123,10 @@ func (s *Server) runAsyncOperation(handle string, input wrpc.OperationInput) {
 
 	p.Start(s.numWorkers, func(pd t.PoolData) {
 		h := pd.GetHost()
+
+		h.Lock()
+		defer h.Unlock()
+
 		if !h.IsAlive {
 			return
 		}
